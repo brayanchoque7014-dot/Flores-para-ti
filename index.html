@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Para ti 🌻</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+body{
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255,196,48,.18), transparent 22%),
+    radial-gradient(circle at 20% 20%, rgba(50,120,255,.18), transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(255,150,30,.16), transparent 28%),
+    #03040b;
+  color:white;
+}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+#start{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:10;background:radial-gradient(circle,rgba(12,14,35,.25),rgba(0,0,0,.72));
+  transition:opacity .9s;
+}
+.card{text-align:center;padding:28px 24px;max-width:420px}
+.flowerIcon{font-size:62px;filter:drop-shadow(0 0 18px #ffc72c);animation:pulse 1.8s infinite}
+h1{font-size:25px;margin:15px 0 8px}
+.tap{font-size:15px;opacity:.78}
+button{
+  margin-top:22px;border:1px solid rgba(255,215,80,.7);background:rgba(255,196,40,.12);
+  color:#ffe98a;border-radius:999px;padding:13px 25px;font-size:16px;
+  box-shadow:0 0 25px rgba(255,195,35,.16)
+}
+#message{
+  position:fixed;z-index:5;inset:0;display:none;align-items:center;justify-content:center;
+  text-align:center;padding:30px;
+}
+.text{
+  max-width:650px;
+  text-shadow:0 2px 20px #000;
+  animation:appear 2s ease both;
+}
+.small{font-size:clamp(17px,4.5vw,25px);line-height:1.45;opacity:.94}
+.big{
+  margin:16px 0;
+  font-size:clamp(39px,10vw,72px);line-height:.98;font-weight:800;
+  color:#ffe36b;
+  text-shadow:0 0 12px #ffbd22,0 0 35px rgba(255,190,40,.5);
+}
+.end{font-size:clamp(18px,4.5vw,27px);line-height:1.45}
+.heart{font-size:38px;color:#ffd34e;animation:pulse 1.4s infinite}
+.petal{
+  position:fixed;z-index:4;pointer-events:none;font-size:24px;
+  filter:drop-shadow(0 0 8px rgba(255,190,30,.8));
+  animation:fall linear forwards;
+}
+@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(540deg);opacity:.05}}
+@keyframes appear{from{opacity:0;transform:scale(.92) translateY(18px)}to{opacity:1;transform:none}}
+@keyframes pulse{50%{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+<canvas id="space"></canvas>
+
+<div id="start">
+  <div class="card">
+    <div class="flowerIcon">🌻</div>
+    <h1>Tengo algo bonito para ti…</h1>
+    <div class="tap">Toca el botón para descubrirlo</div>
+    <button id="go">Tocar para comenzar ✨</button>
+  </div>
+</div>
+
+<div id="message">
+  <div class="text">
+    <div class="small">En un mundo lleno de personas increíbles…</div>
+    <div class="big">tú eres la más bonita de todas. 🌻</div>
+    <div class="end">
+      Tu sonrisa, tu forma de ser, tu mirada y todo en ti<br>
+      te hacen única. 💛<br><br>
+      <span class="heart">♡</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('space'),ctx=canvas.getContext('2d');
+let w,h,stars=[],dust=[];
+function resize(){
+  w=canvas.width=innerWidth*devicePixelRatio;
+  h=canvas.height=innerHeight*devicePixelRatio;
+  canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px';
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  stars=Array.from({length:Math.min(230,Math.floor(innerWidth*.45))},()=>({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.7+.2,a:Math.random(),
+    s:Math.random()*.012+.003
+  }));
+  dust=Array.from({length:110},()=>({a:Math.random()*Math.PI*2,r:20+Math.random()*Math.min(innerWidth,innerHeight)*.42,t:Math.random()*Math.PI*2}));
+}
+addEventListener('resize',resize);resize();
+
+function draw(t){
+  const W=innerWidth,H=innerHeight,cx=W/2,cy=H*.48;
+  ctx.clearRect(0,0,W,H);
+  const g=ctx.createRadialGradient(cx,cy,5,cx,cy,Math.max(W,H)*.7);
+  g.addColorStop(0,'rgba(255,188,35,.16)');g.addColorStop(.3,'rgba(70,95,190,.08)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  stars.forEach(s=>{
+    s.a+=s.s; const alpha=.25+.65*(.5+.5*Math.sin(s.a*10));
+    ctx.globalAlpha=alpha;ctx.fillStyle='#fff4c0';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(-.45);
+  for(let k=0;k<3;k++){
+    ctx.beginPath();
+    for(let i=0;i<160;i++){
+      const p=i/159, ang=p*12.5+k*2.1+t*.00015;
+      const rad=18+p*Math.min(W,H)*.48;
+      const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad*.42;
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.strokeStyle=k===1?'rgba(255,198,55,.20)':'rgba(100,140,255,.10)';
+    ctx.lineWidth=10;ctx.stroke();
+  }
+  ctx.restore();
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+function petals(){
+  const p=document.createElement('div');p.className='petal';
+  p.textContent=Math.random()>.28?'🌻':'🌼';
+  p.style.left=Math.random()*100+'vw';p.style.top='-40px';
+  p.style.setProperty('--x',(Math.random()*160-80)+'px');
+  p.style.animationDuration=(5+Math.random()*5)+'s';
+  p.style.transform='rotate('+Math.random()*180+'deg)';
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),10000);
+}
+document.getElementById('go').onclick=()=>{
+  document.getElementById('start').style.opacity='0';
+  setTimeout(()=>document.getElementById('start').remove(),900);
+  document.getElementById('message').style.display='flex';
+  for(let i=0;i<22;i++)setTimeout(petals,i*120);
+  setInterval(petals,650);
+};
+</script>
+</body>
+</html>
